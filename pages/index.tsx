@@ -45,7 +45,10 @@ export default function Home() {
                     </a>
                   </>
                 ) : (
-                  restaurants[i][j]
+                  <>
+                    <span className="icon">🥦</span>
+                    <span>{restaurants[i][j]}</span>
+                  </>
                 )}
               </h4>
               <ul className="foodlist">
@@ -57,7 +60,7 @@ export default function Home() {
                       dangerouslySetInnerHTML={{ __html: `${food.icon} ${food.text}` }}></li>
                   ))
                 ) : (
-                  <li>loading</li>
+                  <li>🐢 loading</li>
                 )}
               </ul>
             </div>

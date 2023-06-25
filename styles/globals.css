@@ -27,9 +27,27 @@ code {
 }
 
 .container {
-  height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(1, 420px);
+  grid-gap: 1rem;
+}
+
+.foodlist {
+  padding-inline-start: 16px;
+}
+
+.fooditem {
+  padding-bottom: 10px;
+}
+
+.plainlink {
+  text-decoration: none;
+  color: inherit;
 }

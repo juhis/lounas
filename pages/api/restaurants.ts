@@ -15,17 +15,18 @@ const restaurants: Restaurants = {
   Penny: {
     name: "Penny",
     url: "https://www.restaurantpenny.fi/new-page",
+    icon: "🇺🇸",
     language: "en",
     parseType: "HTML",
     parse: function (dom: any, day: string) {
-      let food = "nothing found";
+      let food = { icon: "😭", text: "ei löytynyt mitään" };
       const elems = CSSselect.selectAll("h4", dom);
       elems.forEach((elem, i) => {
         if (render(elem).toLowerCase().includes(day)) {
           if (elem.children.length > 1) {
-            food = render(elem.children[1]).trim();
+            food = { icon: "🤤", text: render(elem.children[1]).trim() };
           } else {
-            food = render(elems[i + 1].children[0]).trim();
+            food = { icon: "🤤", text: render(elems[i + 1].children[0]).trim() };
           }
         }
       });
@@ -35,10 +36,11 @@ const restaurants: Restaurants = {
   Kiltakellari: {
     name: "Kiltakellari",
     url: "https://ravintolakiltakellari.fi/lounas",
+    icon: "🏰",
     language: "fi",
     parseType: "HTML",
     parse: function (dom: any, day: string) {
-      return ["closed until Aug 7th"];
+      return [{ icon: "⛔", text: "sulki 7.8. saakka" }];
     },
   },
   "South Park": {
@@ -46,6 +48,7 @@ const restaurants: Restaurants = {
     //this is a mess
     //url: "https://southparkrestaurant.fi/lounas",
     url: "https://www.lounaat.info/lounas/southpark/helsinki",
+    icon: "🏞️",
     language: "fi",
     parseType: "HTML",
     parse: function (dom: any, day: string) {
@@ -55,7 +58,7 @@ const restaurants: Restaurants = {
         if (render(elem).toLowerCase().includes(day)) {
           for (let j = i + 1; j < elems.length; j++) {
             if (CSSselect.is(elems[j], "p")) {
-              food.push(render(elems[j].children));
+              food.push({ icon: "🤤", text: render(elems[j].children) });
             }
             if (CSSselect.is(elems[j], "h3")) {
               break;
@@ -64,7 +67,7 @@ const restaurants: Restaurants = {
         }
       });
       if (food.length === 0) {
-        food = ["nothing found"];
+        food = [{ icon: "😭", text: "ei löytynyt mitään" }];
       }
       return food;
     },
@@ -72,10 +75,11 @@ const restaurants: Restaurants = {
   Pompier: {
     name: "Pompier",
     url: "https://pompier.fi/albertinkatu/albertinkatu-menu",
+    icon: "🧑‍🚒",
     language: "fi",
     parseType: "HTML",
     parse: function (dom: any, day: string) {
-      let food = ["nothing found"];
+      let food = [{ icon: "😭", text: "ei löytynyt mitään" }];
       const elems = CSSselect.selectAll("p,a", dom);
       elems.forEach((elem, i) => {
         if (render(elem).toLowerCase().includes(day)) {
@@ -84,7 +88,7 @@ const restaurants: Restaurants = {
               food = render(elems[j].children)
                 .trim()
                 .split("<br>")
-                .map((food) => food.trim());
+                .map((food) => ({ icon: "🤤", text: food.trim() }));
               break;
             }
           }
@@ -96,6 +100,7 @@ const restaurants: Restaurants = {
   Annapurna: {
     name: "Annapurna",
     url: "https://restadeal.fi/menu/6/1/lunch",
+    icon: "🇳🇵",
     language: "fi",
     parseType: "HTML",
     parse: function (dom: any, day: string) {
@@ -106,13 +111,13 @@ const restaurants: Restaurants = {
         if (render(elem).toLowerCase().includes(day)) {
           for (let j = i + 2; j < elems.length; j++) {
             if (CSSselect.is(elems[j], "p")) {
-              food.push(render(elems[j].children).trim());
+              food.push({ icon: "🤤", text: render(elems[j].children).trim() });
             }
           }
         }
       });
       if (food.length === 0) {
-        food = ["nothing found"];
+        food = [{ icon: "😭", text: "ei löytynyt mitään" }];
       }
       return food;
     },
@@ -121,6 +126,7 @@ const restaurants: Restaurants = {
     name: "Salve",
     //url: "https://www.raflaamo.fi/_next/data/ATWrNK7H4888TMUv6Zln1/fi/restaurant/helsinki/salve/menu/5274/ruokalista.json",
     url: "https://www.raflaamo.fi/_next/data/ATWrNK7H4888TMUv6Zln1/fi/restaurant/helsinki/salve.json",
+    icon: "⛵",
     language: "en",
     parseType: "JSON",
     parse: function (json: any, day: string) {
@@ -132,10 +138,10 @@ const restaurants: Restaurants = {
         thisWeek[0].dailyMenuAvailabilities[day] == null ||
         thisWeek[0].dailyMenuAvailabilities[day].menu.menuSections.length === 0
       ) {
-        return ["nothing found"];
+        return [{ icon: "😭", text: "ei löytynyt mitään" }];
       }
       return thisWeek[0].dailyMenuAvailabilities[day].menu.menuSections[0].portions.map(
-        (portion) => portion.name.fi_FI
+        (portion) => ({ icon: "🤤", text: portion.name.fi_FI })
       );
     },
   },

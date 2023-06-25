@@ -38,9 +38,12 @@ export default function Home() {
             <div key={restaurants[i][j]} style={{ gridColumn: i + 1, gridRow: j + 1 }}>
               <h4>
                 {r ? (
-                  <a className="plainlink" href={r.restaurant.url}>
-                    {r.restaurant.name}
-                  </a>
+                  <>
+                    <span className="icon">{r.restaurant.icon}</span>
+                    <a className="plainlink" href={r.restaurant.url}>
+                      {r.restaurant.name}
+                    </a>
+                  </>
                 ) : (
                   restaurants[i][j]
                 )}
@@ -51,7 +54,7 @@ export default function Home() {
                     <li
                       className="fooditem"
                       key={food}
-                      dangerouslySetInnerHTML={{ __html: food }}></li>
+                      dangerouslySetInnerHTML={{ __html: `${food.icon} ${food.text}` }}></li>
                   ))
                 ) : (
                   <li>loading</li>
@@ -68,6 +71,7 @@ export default function Home() {
     <div className="container">
       <Head>
         <title>Lounas.</title>
+        <meta name="viewport" content="width=device-width, initial-scale=0.9" />
         <link rel="icon" href="/favicon.ico" />
         <link
           rel="icon"

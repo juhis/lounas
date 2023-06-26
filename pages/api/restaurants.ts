@@ -1,4 +1,5 @@
 import render from "dom-serializer";
+import { innerText } from "domutils";
 import * as CSSselect from "css-select";
 import { Restaurants } from "../../types/types";
 
@@ -19,6 +20,9 @@ const restaurants: Restaurants = {
     language: "en",
     parseType: "HTML",
     parse: function (dom: any, day: string) {
+      if (day === "monday" || day === "tuesday") {
+        return [{ icon: "⛔", text: "kiinni" }];
+      }
       let food = { icon: "😭", text: "ei löytynyt mitään" };
       const elems = CSSselect.selectAll("h4", dom);
       elems.forEach((elem, i) => {
@@ -45,25 +49,49 @@ const restaurants: Restaurants = {
   },
   "South Park": {
     name: "South Park",
-    //this is a mess
-    //url: "https://southparkrestaurant.fi/lounas",
-    url: "https://www.lounaat.info/lounas/southpark/helsinki",
+    url: "https://southparkrestaurant.fi/lounas",
     icon: "🏞️",
     language: "fi",
     parseType: "HTML",
     parse: function (dom: any, day: string) {
       let food = [];
-      const elems = CSSselect.selectAll("h3,.dish", dom);
+      const elems = CSSselect.selectAll("[role=listitem]", dom);
       elems.forEach((elem, i) => {
-        if (render(elem).toLowerCase().includes(day)) {
-          for (let j = i + 1; j < elems.length; j++) {
-            if (CSSselect.is(elems[j], "p")) {
-              food.push({ icon: "🤤", text: render(elems[j].children) });
+        const text = innerText(elem);
+        if (text.toLowerCase().includes(day) || text.includes("VIIKON ")) {
+          const arr = text
+            .split("\n")
+            .map((s) => s.trim())
+            .filter((s) => s.length > 0);
+          arr.forEach((s, i) => {
+            if (s.includes("PÄIVÄN ") || s.includes("VIIKON ")) {
+              let endFound = false;
+              for (let j = i + 1; j < arr.length; j++) {
+                const s2 = arr[j];
+                if (s2.includes("PÄIVÄN ") || s2.includes("VIIKON ")) {
+                  food.push({
+                    icon: "🤤",
+                    text: arr
+                      .slice(i, j)
+                      .map((t) => t.replace(/^VIIKON [A-Z]+/, "").replace(/^PÄIVÄN [A-Z]+/, ""))
+                      .join(" ")
+                      .trim(),
+                  });
+                  endFound = true;
+                }
+              }
+              if (!endFound) {
+                food.push({
+                  icon: "🤤",
+                  text: arr
+                    .slice(i)
+                    .map((t) => t.replace(/^VIIKON [A-Z]+/, "").replace(/^PÄIVÄN [A-Z]+/, ""))
+                    .join(" ")
+                    .trim(),
+                });
+              }
             }
-            if (CSSselect.is(elems[j], "h3")) {
-              break;
-            }
-          }
+          });
         }
       });
       if (food.length === 0) {
@@ -112,6 +140,9 @@ const restaurants: Restaurants = {
           for (let j = i + 2; j < elems.length; j++) {
             if (CSSselect.is(elems[j], "p")) {
               food.push({ icon: "🤤", text: render(elems[j].children).trim() });
+            }
+            if (CSSselect.is(elems[j], "h4")) {
+              break;
             }
           }
         }

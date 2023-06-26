@@ -8,8 +8,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     fi: ["sunnuntai", "maanantai", "tiistai", "keskiviikko", "torstai", "perjantai", "lauantai"],
   };
   const restaurant = restaurants[req.query.restaurant as string];
+  const day = req.query.day ? parseInt(req.query.day as string) : new Date().getDay();
   if (restaurant === undefined) {
     res.json({ restaurant: { name: req.query.restaurant }, lounas: ["not implemented"] });
+    return;
+  }
+  if (day == 0 || day == 6) {
+    res.json({ restaurant: restaurant, lounas: [{ icon: "⏳", text: "viikonloppu" }] });
     return;
   }
   await fetch(restaurant.url)
@@ -27,7 +32,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       if (restaurant.parseType === "HTML") {
         model = htmlparser2.parseDocument(content);
       }
-      const lounas = restaurant.parse(model, days[restaurant.language][new Date().getDay()]);
+      const lounas = restaurant.parse(model, days[restaurant.language][day]);
       res.json({ restaurant: restaurant, lounas: lounas });
     })
     .catch((error) => {

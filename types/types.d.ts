@@ -5,6 +5,7 @@ export type Restaurants = {
 export type Restaurant = {
   name: string;
   url?: string;
+  visitUrl?: string;
   icon?: string;
   language?: string;
   parseType?: string;

@@ -3,10 +3,16 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { useEffect, useMemo, useState } from "react";
 
-const restaurants = [["Penny", "South Park", "Kiltakellari", "Salve", "Pompier", "Annapurna"]];
+const restaurants = [["Penny", "South Park", "Pompier", "Kiltakellari", "Salve", "Annapurna"]];
 
-async function getData(restaurant: string) {
-  const res = await fetch("/api/fetch/?" + new URLSearchParams({ restaurant: restaurant }));
+async function getData(restaurant: string, dayOffset: number) {
+  const res = await fetch(
+    "/api/fetch/?" +
+      new URLSearchParams({
+        restaurant: restaurant,
+        day: (new Date().getDay() + dayOffset).toString(),
+      })
+  );
   if (!res.ok) {
     throw new Error(`Failed to fetch data for ${restaurant}`);
   }
@@ -14,21 +20,33 @@ async function getData(restaurant: string) {
 }
 
 export default function Home() {
+  const [dayOffset, setDayOffset] = useState(0);
   const [data, setData] = useState(restaurants.map((group) => group.map((r) => null)));
+  const [loading, setLoading] = useState(restaurants.map((group) => group.map((r) => false)));
 
   useEffect(() => {
     restaurants.forEach((group, i) => {
       group.forEach((restaurant, j) => {
-        getData(restaurant).then((result) => {
+        setLoading((prev) => {
+          const next = [...prev];
+          next[i][j] = true;
+          return next;
+        });
+        getData(restaurant, dayOffset).then((result) => {
           setData((prev) => {
             const next = [...prev];
             next[i][j] = result;
             return next;
           });
+          setLoading((prev) => {
+            const next = [...prev];
+            next[i][j] = false;
+            return next;
+          });
         });
       });
     });
-  }, []);
+  }, [dayOffset]);
 
   const grid = useMemo(
     () =>
@@ -40,7 +58,7 @@ export default function Home() {
                 {r ? (
                   <>
                     <span className="icon">{r.restaurant.icon}</span>
-                    <a className="plainlink" href={r.restaurant.url}>
+                    <a className="plainlink" href={r.restaurant.visitUrl || r.restaurant.url}>
                       {r.restaurant.name}
                     </a>
                   </>
@@ -52,11 +70,11 @@ export default function Home() {
                 )}
               </h4>
               <ul className="foodlist">
-                {r ? (
+                {r && !loading[i][j] ? (
                   r.lounas.map((food) => (
                     <li
                       className="fooditem"
-                      key={food}
+                      key={r.restaurant.name + food.text}
                       dangerouslySetInnerHTML={{ __html: `${food.icon} ${food.text}` }}></li>
                   ))
                 ) : (
@@ -74,6 +92,7 @@ export default function Home() {
     <div className="container">
       <Head>
         <title>Lounas.</title>
+        <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=0.9" />
         <link rel="icon" href="/favicon.ico" />
         <link
@@ -83,6 +102,30 @@ export default function Home() {
 
       <main>
         <Header title="Lounas." />
+        <div className="menu">
+          {/* <span className="menuitem selected" style={{ gridColumn: 1, gridRow: 1 }}>
+            Punavuori
+          </span>
+          <span className="menuitem" style={{ gridColumn: 2, gridRow: 1 }}>
+            Meilahti
+          </span> */}
+          <span
+            className={dayOffset == 0 ? "menuitem selected" : "menuitem"}
+            style={{ gridColumn: 1, gridRow: 2 }}
+            onClick={() => {
+              setDayOffset(0);
+            }}>
+            tänään
+          </span>
+          <span
+            className={dayOffset == 1 ? "menuitem selected" : "menuitem"}
+            style={{ gridColumn: 2, gridRow: 2 }}
+            onClick={() => {
+              setDayOffset(1);
+            }}>
+            huomenna
+          </span>
+        </div>
         <div className="grid">{grid}</div>
       </main>
 

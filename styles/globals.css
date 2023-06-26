@@ -36,6 +36,20 @@ code {
   align-items: center;
 }
 
+.menu {
+  display: grid;
+  gap: 20px;
+}
+
+.menuitem {
+  cursor: pointer;
+  color: #666;
+}
+
+.selected {
+  color: #000;
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(1, 420px);

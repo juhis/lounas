@@ -3,7 +3,9 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { useEffect, useMemo, useState } from "react";
 
-const restaurants = [["Penny", "South Park", "Pompier", "Kiltakellari", "Salve", "Annapurna"]];
+const restaurants = [
+  ["Penny", "Southpark", "Pompier", "Kiltakellari", "Salve", "Fulbari", "Annapurna"],
+];
 
 async function getData(restaurant: string, dayOffset: number) {
   const res = await fetch(

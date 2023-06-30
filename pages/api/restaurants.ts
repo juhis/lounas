@@ -12,6 +12,28 @@ const getWeekNumber = (date: Date) => {
   return Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
 };
 
+const parseRestaDeal = (dom: any, day: string) => {
+  let food = [];
+  const subset = CSSselect.selectAll("#section-1 .row", dom);
+  const elems = CSSselect.selectAll("h4,p", subset[0]);
+  elems.forEach((elem, i) => {
+    if (render(elem).toLowerCase().includes(day)) {
+      for (let j = i + 2; j < elems.length; j++) {
+        if (CSSselect.is(elems[j], "p")) {
+          food.push({ icon: "🤤", text: render(elems[j].children).trim() });
+        }
+        if (CSSselect.is(elems[j], "h4")) {
+          break;
+        }
+      }
+    }
+  });
+  if (food.length === 0) {
+    food = [{ icon: "😭", text: "ei löytynyt mitään" }];
+  }
+  return food;
+};
+
 const restaurants: Restaurants = {
   Penny: {
     name: "Penny",
@@ -47,8 +69,8 @@ const restaurants: Restaurants = {
       return [{ icon: "⛔", text: "sulki 7.8. saakka" }];
     },
   },
-  "South Park": {
-    name: "South Park",
+  Southpark: {
+    name: "Southpark",
     url: "https://southparkrestaurant.fi/lounas",
     icon: "🏞️",
     language: "fi",
@@ -125,32 +147,24 @@ const restaurants: Restaurants = {
       return food;
     },
   },
-  Annapurna: {
-    name: "Annapurna",
-    url: "https://restadeal.fi/menu/6/1/lunch",
+  Fulbari: {
+    name: "Fulbari",
+    url: "https://restadeal.fi/menu/43/1/lunch",
     icon: "🇳🇵",
     language: "fi",
     parseType: "HTML",
     parse: function (dom: any, day: string) {
-      let food = [];
-      const subset = CSSselect.selectAll("#section-1 .row", dom);
-      const elems = CSSselect.selectAll("h4,p", subset[0]);
-      elems.forEach((elem, i) => {
-        if (render(elem).toLowerCase().includes(day)) {
-          for (let j = i + 2; j < elems.length; j++) {
-            if (CSSselect.is(elems[j], "p")) {
-              food.push({ icon: "🤤", text: render(elems[j].children).trim() });
-            }
-            if (CSSselect.is(elems[j], "h4")) {
-              break;
-            }
-          }
-        }
-      });
-      if (food.length === 0) {
-        food = [{ icon: "😭", text: "ei löytynyt mitään" }];
-      }
-      return food;
+      return parseRestaDeal(dom, day);
+    },
+  },
+  Annapurna: {
+    name: "Annapurna",
+    url: "https://restadeal.fi/menu/6/1/lunch",
+    icon: "🏔️",
+    language: "fi",
+    parseType: "HTML",
+    parse: function (dom: any, day: string) {
+      return parseRestaDeal(dom, day);
     },
   },
   Salve: {

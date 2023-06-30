@@ -169,25 +169,29 @@ const restaurants: Restaurants = {
   },
   Salve: {
     name: "Salve",
-    //url: "https://www.raflaamo.fi/_next/data/ATWrNK7H4888TMUv6Zln1/fi/restaurant/helsinki/salve/menu/5274/ruokalista.json",
-    url: "https://www.raflaamo.fi/_next/data/ATWrNK7H4888TMUv6Zln1/fi/restaurant/helsinki/salve.json",
+    url: "https://www.lounaat.info/lounas/salve/helsinki",
     icon: "⛵",
-    language: "en",
-    parseType: "JSON",
-    parse: function (json: any, day: string) {
-      const thisWeek = json.pageProps.restaurant.lunchMenuGroups[0].weeklyLunchMenu.filter(
-        (menu) => menu.weekNumber === getWeekNumber(new Date())
-      );
-      if (
-        thisWeek.length === 0 ||
-        thisWeek[0].dailyMenuAvailabilities[day] == null ||
-        thisWeek[0].dailyMenuAvailabilities[day].menu.menuSections.length === 0
-      ) {
-        return [{ icon: "😭", text: "ei löytynyt mitään" }];
+    language: "fi",
+    parseType: "HTML",
+    parse: function (dom: any, day: string) {
+      let food = [];
+      const elems = CSSselect.selectAll("h3,.dish", dom);
+      elems.forEach((elem, i) => {
+        if (innerText(elem).toLowerCase().includes(day)) {
+          for (let j = i + 1; j < elems.length; j++) {
+            if (CSSselect.is(elems[j], "p")) {
+              food.push({ icon: "🤤", text: innerText(elems[j].children) });
+            }
+            if (CSSselect.is(elems[j], "h3")) {
+              break;
+            }
+          }
+        }
+      });
+      if (food.length === 0) {
+        food = [{ icon: "😭", text: "ei löytynyt mitään" }];
       }
-      return thisWeek[0].dailyMenuAvailabilities[day].menu.menuSections[0].portions.map(
-        (portion) => ({ icon: "🤤", text: portion.name.fi_FI })
-      );
+      return food;
     },
   },
 };

@@ -4,15 +4,31 @@ import Footer from "../components/Footer";
 import { useEffect, useMemo, useState } from "react";
 
 const restaurants = [
-  ["Penny", "Southpark", "Pompier", "Kiltakellari", "Salve", "Fulbari", "Annapurna"],
+  [
+    "Southpark",
+    "Pompier",
+    "Kiltakellari",
+    "Salve",
+    "Pihka",
+    "Pantry",
+    "Halo",
+    "FoodCo",
+    "Fulbari",
+    "Annapurna",
+  ],
 ];
 
 async function getData(restaurant: string, dayOffset: number) {
+  const date = new Date();
+  if (dayOffset === 1) {
+    date.setDate(date.getDate() + 1);
+  }
   const res = await fetch(
     "/api/fetch/?" +
       new URLSearchParams({
         restaurant: restaurant,
         day: (new Date().getDay() + dayOffset).toString(),
+        isotime: date.toISOString(),
       })
   );
   if (!res.ok) {

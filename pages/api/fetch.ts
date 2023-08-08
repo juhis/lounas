@@ -17,7 +17,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res.json({ restaurant: restaurant, lounas: [{ icon: "⏳", text: "viikonloppu" }] });
     return;
   }
-  await fetch(restaurant.url)
+  await fetch(restaurant.url.replace("{isotime}", req.query.isotime as string))
     .then((response) => {
       if (restaurant.parseType === "HTML") {
         return response.text();

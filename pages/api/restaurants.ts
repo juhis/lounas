@@ -3,15 +3,6 @@ import { innerText } from "domutils";
 import * as CSSselect from "css-select";
 import { Restaurants } from "../../types/types";
 
-const getWeekNumber = (date: Date) => {
-  var d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-  var dayNum = d.getUTCDay() || 7;
-  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
-  var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-  // @ts-ignore
-  return Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
-};
-
 const parseRestaDeal = (dom: any, day: string) => {
   let food = [];
   const subset = CSSselect.selectAll("#section-1 .row", dom);
@@ -20,7 +11,8 @@ const parseRestaDeal = (dom: any, day: string) => {
     if (render(elem).toLowerCase().includes(day)) {
       for (let j = i + 2; j < elems.length; j++) {
         if (CSSselect.is(elems[j], "p")) {
-          food.push({ icon: "🤤", text: render(elems[j].children).trim() });
+          const text = render(elems[j].children).trim();
+          food.push({ icon: "🤤", text: text });
         }
         if (CSSselect.is(elems[j], "h4")) {
           break;
@@ -34,39 +26,87 @@ const parseRestaDeal = (dom: any, day: string) => {
   return food;
 };
 
-const restaurants: Restaurants = {
-  Penny: {
-    name: "Penny",
-    url: "https://www.restaurantpenny.fi/new-page",
-    icon: "🇺🇸",
-    language: "en",
-    parseType: "HTML",
-    parse: function (dom: any, day: string) {
-      if (day === "monday" || day === "tuesday") {
-        return [{ icon: "⛔", text: "kiinni" }];
-      }
-      let food = { icon: "😭", text: "ei löytynyt mitään" };
-      const elems = CSSselect.selectAll("h4", dom);
-      elems.forEach((elem, i) => {
-        if (render(elem).toLowerCase().includes(day)) {
-          if (elem.children.length > 1) {
-            food = { icon: "🤤", text: render(elem.children[1]).trim() };
-          } else {
-            food = { icon: "🤤", text: render(elems[i + 1].children[0]).trim() };
+const parseLounaatInfo = (dom: any, day: string, className: string) => {
+  let food = [];
+  const elems = CSSselect.selectAll(`h3,.${className}`, dom);
+  elems.forEach((elem, i) => {
+    if (innerText(elem).toLowerCase().includes(day)) {
+      for (let j = i + 1; j < elems.length; j++) {
+        if (CSSselect.is(elems[j], "p")) {
+          const text = innerText(elems[j].children).trim();
+          if (
+            text !== "…Lounaan kanssa" &&
+            text !== "Pick it" &&
+            text !== "Choose it" &&
+            text !== "Love it"
+          ) {
+            food.push({ icon: "🤤", text: text });
           }
         }
-      });
-      return [food];
+        if (CSSselect.is(elems[j], "h3")) {
+          break;
+        }
+      }
+    }
+  });
+  if (food.length === 0) {
+    food = [{ icon: "😭", text: "ei löytynyt mitään" }];
+  }
+  return food;
+};
+
+const restaurants: Restaurants = {
+  FoodCo: {
+    name: "Food & Co",
+    url: "https://www.compass-group.fi/menuapi/day-menus?costCenter=3130&date={isotime}&language=fi",
+    icon: "🍽️",
+    language: "fi",
+    parseType: "JSON",
+    parse: function (json: any, day: string) {
+      const food = json.menuPackages[0].meals.map((meal: any) => ({ icon: "🤤", text: meal.name }));
+      console.log(food);
+      return food;
+    },
+  },
+  Pihka: {
+    name: "Pihka",
+    //url: "https://www.pihka.fi/pihka-meclu/",
+    url: "https://www.lounaat.info/lounas/pihka-meclu/helsinki",
+    icon: "🌲",
+    language: "fi",
+    parseType: "HTML",
+    parse: function (dom: any, day: string) {
+      return parseLounaatInfo(dom, day, "dish");
+    },
+  },
+  Pantry: {
+    name: "Pantry",
+    url: "https://www.lounaat.info/lounas/the-pantry/helsinki",
+    icon: "🚪",
+    language: "fi",
+    parseType: "HTML",
+    parse: function (dom: any, day: string) {
+      return parseLounaatInfo(dom, day, "info");
     },
   },
   Kiltakellari: {
     name: "Kiltakellari",
-    url: "https://ravintolakiltakellari.fi/lounas",
+    url: "https://www.lounaat.info/lounas/sodexo-kiltakellari/helsinki",
     icon: "🏰",
     language: "fi",
     parseType: "HTML",
     parse: function (dom: any, day: string) {
-      return [{ icon: "⛔", text: "sulki 7.8. saakka" }];
+      return parseLounaatInfo(dom, day, "dish");
+    },
+  },
+  Halo: {
+    name: "Halo",
+    url: "https://www.lounaat.info/lounas/halo-food-events/helsinki",
+    icon: "😇",
+    language: "fi",
+    parseType: "HTML",
+    parse: function (dom: any, day: string) {
+      return parseLounaatInfo(dom, day, "dish");
     },
   },
   Southpark: {
@@ -174,24 +214,7 @@ const restaurants: Restaurants = {
     language: "fi",
     parseType: "HTML",
     parse: function (dom: any, day: string) {
-      let food = [];
-      const elems = CSSselect.selectAll("h3,.dish", dom);
-      elems.forEach((elem, i) => {
-        if (innerText(elem).toLowerCase().includes(day)) {
-          for (let j = i + 1; j < elems.length; j++) {
-            if (CSSselect.is(elems[j], "p")) {
-              food.push({ icon: "🤤", text: innerText(elems[j].children) });
-            }
-            if (CSSselect.is(elems[j], "h3")) {
-              break;
-            }
-          }
-        }
-      });
-      if (food.length === 0) {
-        food = [{ icon: "😭", text: "ei löytynyt mitään" }];
-      }
-      return food;
+      return parseLounaatInfo(dom, day, "dish");
     },
   },
 };

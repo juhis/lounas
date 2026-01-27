@@ -8,17 +8,17 @@
     "export": "next export"
   },
   "dependencies": {
-    "css-select": "^5.1.0",
-    "cypress": "^10.0.3",
+    "css-select": "^5.2.2",
+    "cypress": "^15.9.0",
     "dom-serializer": "^2.0.0",
-    "domutils": "^3.1.0",
-    "htmlparser2": "^9.0.0",
-    "next": "^12.1.5",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0"
+    "domutils": "^3.2.2",
+    "htmlparser2": "^9.1.0",
+    "next": "^16.1.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "@netlify/plugin-nextjs": "^5.8.3",
+    "@netlify/plugin-nextjs": "^5.15.6",
     "@types/react": "18.2.13",
     "typescript": "5.1.3"
   }

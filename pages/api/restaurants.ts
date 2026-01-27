@@ -6,6 +6,9 @@ import { Restaurants } from "../../types/types";
 const parseRestaDeal = (dom: any, day: string) => {
   let food = [];
   const subset = CSSselect.selectAll("#section-1 .row", dom);
+  if (!subset.length) {
+    return [{ icon: "😭", text: "ei löytynyt mitään" }];
+  }
   const elems = CSSselect.selectAll("h4,p", subset[0]);
   elems.forEach((elem, i) => {
     if (render(elem).toLowerCase().includes(day)) {
@@ -63,9 +66,7 @@ const restaurants: Restaurants = {
     language: "fi",
     parseType: "JSON",
     parse: function (json: any, day: string) {
-      const food = json.menuPackages[0].meals.map((meal: any) => ({ icon: "🤤", text: meal.name }));
-      console.log(food);
-      return food;
+      return json.menuPackages[0].meals.map((meal: any) => ({ icon: "🤤", text: meal.name }));
     },
   },
   Pihka: {
